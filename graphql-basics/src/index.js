@@ -7,3 +7,4 @@ console.log(message);
 console.log(name);
 console.log(info);
 console.log(myFunction('Jessica'));
+console.log(myFunction('Jessica'));
