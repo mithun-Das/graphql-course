@@ -2,6 +2,51 @@
 import { GraphQLServer } from 'graphql-yoga';
  
 
+const userList = [
+    {
+        id: "1",
+        name: "mithun das",
+        age: 26,
+        employed: true
+    },
+    {
+        id: "2",
+        name: "Nitu das",
+        age: 28,
+        employed: true
+    },
+    {
+        id: "3",
+        name: "munni das",
+        age: 26,
+        employed: true
+    }
+];
+
+const posts = [
+    {
+        id: "1",
+        title: "post - 1",
+        body: "First Post",
+        author: "1",
+        published: true
+    },
+    {
+        id: "2",
+        title: "post - 2",
+        body: "Second Post",
+        author: "2",
+        published: true
+    },
+    {
+        id: "3",
+        title: "post - 3",
+        body: "Third Post",
+        author: "3",
+        published: false
+    }
+];
+
 //Type definitions (schema)
 
 
@@ -11,10 +56,13 @@ const typeDefs  = `
         name: String!
         age: Int!
         employed: Boolean!
+        add(numbers : [Int!]!): Int!
         gpa: Float!
         greeting(name: String): String!
+        grades: [Int!]!
         me: User!
-        post: Post!
+        post(id: String): [Post!]!
+        users(age: Int): [User!]!
     }
 
     type Test {
@@ -22,7 +70,7 @@ const typeDefs  = `
     }
 
     type User {
-            id: ID!,
+            id: String!,
             name: String!
             age: Int!
             employed: Boolean!
@@ -30,9 +78,10 @@ const typeDefs  = `
     }
 
     type Post {
-            id: ID!
+            id: String!
             title: String!
             body: String!
+            author: User!
             published: Boolean!
     }
 `;
@@ -53,6 +102,13 @@ const resolvers = {
         employed() {
             return true;
         },
+        add(parent,args,ctx,info) {
+            for(var i = 0, sum = 0; i < args.numbers.length ; ++i) {
+                sum += args.numbers[i];
+            }
+
+            return sum;
+        },
         gpa() {
             return 3.21;
         },
@@ -64,6 +120,9 @@ const resolvers = {
 
             return args.name;
         },
+        grades() {
+            return [3,3,4,null];
+        },
         me() {
             return {
                 id: 1,
@@ -72,14 +131,24 @@ const resolvers = {
                 employed: true
             }
         },
-        post() {
-            return {
-                id: '1',
-                title: 'GraphQL 101',
-                body: 'First Post',
-                published: false
-            }
+        post(parent, args, ctx, info) {
+            return posts.filter( (post) => {
+                   return post.id == args.id;
+            });
+        },
+        users(parent, args, ctx, info) {
+            return userList.filter( (user) => {
+                return args.age == user.age;
+            });
         }
+    },
+
+    Post: {
+        author(parent, args, ctx, info) {
+            return userList.find( (user) => {
+                return user.id == parent.author;        
+            });
+        }   
     },
 
     Test: {
