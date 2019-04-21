@@ -12,7 +12,7 @@ const typeDefs  = `
         age: Int!
         employed: Boolean!
         gpa: Float!
-        greeting(name: String): String!
+        greeting(name: String, job: String): String!
         me: User!
         post: Post!
     }
