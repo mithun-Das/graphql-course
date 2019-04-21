@@ -4,7 +4,7 @@
   "description": "Basic GraphQL project for learning purpose",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index.js --exec babel-node", 
+    "start": "nodemon src/index.js --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mithun Das",
