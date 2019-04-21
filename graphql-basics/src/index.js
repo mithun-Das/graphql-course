@@ -47,6 +47,33 @@ const posts = [
     }
 ];
 
+const commentList = [
+    {
+        id: "1",
+        postId: "1",
+        userId: "1",
+        description: "This is comment - 1"
+    },
+    {
+        id: "2",
+        postId: "2",
+        userId: "2",
+        description: "This is comment - 2"
+    },
+    {
+        id: "3",
+        postId: "3",
+        userId: "3",
+        description: "This is comment - 3"
+    },
+    {
+        id: "4",
+        postId: "4",
+        userId: "4",
+        description: "This is comment - 4"
+    }
+];
+
 //Type definitions (schema)
 
 
@@ -58,10 +85,12 @@ const typeDefs  = `
         employed: Boolean!
         add(numbers : [Int!]!): Int!
         gpa: Float!
+        grades: [Int]!
         greeting(name: String, job: String): String!
         me: User!
         post(id: String): [Post!]!
-        users(age: Int): [User!]!
+        users(id: String!): [User!]!
+        comments : [Comment]
     }
 
     type Test {
@@ -74,6 +103,8 @@ const typeDefs  = `
             age: Int!
             employed: Boolean!
             gpa: Float!
+            postList: [Post]
+            comments: [Comment!]
     }
 
     type Post {
@@ -81,7 +112,15 @@ const typeDefs  = `
             title: String!
             body: String!
             author: User!
+            comments: [Comment!]
             published: Boolean!
+    }
+
+    type Comment {
+            id: String!
+            postId: Post!
+            userId: User!
+            description: String!
     }
 `;
 
@@ -137,8 +176,13 @@ const resolvers = {
         },
         users(parent, args, ctx, info) {
             return userList.filter( (user) => {
-                return args.age == user.age;
+                return args.id == user.id;
             });
+        },
+        comments(parent,args,ctx,info) {
+           // return commentList.filter( (comment) => {
+                return commentList;
+            //});
         }
     },
 
@@ -147,7 +191,41 @@ const resolvers = {
             return userList.find( (user) => {
                 return user.id == parent.author;        
             });
-        }   
+        },
+
+        comments(parent, args, ctx, info) {
+            return commentList.filter( (comment) => {
+                return comment.postId == parent.id ;
+            });
+        }
+    },
+
+    User: {
+        postList(parent, args, ctx, info) {
+            return posts.filter( (blog) => {
+                return blog.author == parent.id ;
+            });
+        },
+
+        comments(parent, args, ctx, info) {
+            return commentList.filter((comment) => {
+                return comment.userId == parent.id;
+            });
+        }
+    },
+
+    Comment: {
+        userId(parent, args, ctx, info) {
+            return userList.find( (user) => {
+                return user.id == parent.userId ;
+            });
+        },
+
+        postId(parent,args, ctx, info) {
+            return posts.find( (post) => {
+                return post.id == parent.postId ;
+            });
+        }
     },
 
     Test: {
