@@ -1,24 +1,27 @@
 
 import { GraphQLServer } from 'graphql-yoga';
+import uuidv4 from 'uuid/v4' ;
  
-
 const userList = [
     {
         id: "1",
         name: "mithun das",
         age: 26,
+        email: "mithun.das227@gmail.com",
         employed: true
     },
     {
         id: "2",
         name: "Nitu das",
         age: 28,
+        email: "nitu.das227@gmail.com",
         employed: true
     },
     {
         id: "3",
         name: "munni das",
         age: 26,
+        email: "munni.das227@gmail.com",
         employed: true
     }
 ];
@@ -65,12 +68,6 @@ const commentList = [
         postId: "3",
         userId: "3",
         description: "This is comment - 3"
-    },
-    {
-        id: "4",
-        postId: "4",
-        userId: "4",
-        description: "This is comment - 4"
     }
 ];
 
@@ -90,7 +87,13 @@ const typeDefs  = `
         me: User!
         post(id: String): [Post!]!
         users(id: String!): [User!]!
-        comments : [Comment]
+        comments : [Comment!]!
+    }
+
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int!) : User!
+        createPost(title: String!, body: String!, author: String!, published: Boolean) : Post!
+        createComment(postId: String!, userId: String!, description: String!) : Comment!
     }
 
     type Test {
@@ -183,6 +186,83 @@ const resolvers = {
            // return commentList.filter( (comment) => {
                 return commentList;
             //});
+        }
+    },
+
+    Mutation: {
+        createUser(parent, args, ctx, info) {
+            
+            var emailExist = userList.some( (user) => {
+                return user.email == args.email ;
+            });
+
+            if(emailExist){
+                throw new Error('Email already exists');
+            }
+
+            const user = {
+                id: uuidv4(),
+                name: args.name,
+                email: args.email,
+                age: args.age,
+                employed: true
+            }
+
+            userList.push(user);
+
+            return user;
+        },
+
+        createPost(parent, args, ctx, info) {
+
+            var userExist = userList.some( (user) => {
+                return user.id == args.author;
+            });
+
+            if(!userExist){
+                throw new Error('User does not exist');
+            }
+
+            const postData = {
+                id: uuidv4(),
+                ...args
+            }
+
+            posts.push(postData);
+            console.log(posts);
+
+            return postData;
+        },
+
+        createComment(parent, args, ctx, info) {
+
+            var postExist = posts.some( (post) => {
+                return post.id == args.postId ;
+            });
+
+            if(!postExist) {
+                throw new Error('Post does not exist !!!');
+            }
+
+            var userExist = userList.some( (user) => {
+                return user.id = args.userId;
+            });
+
+            if(!userExist) {
+                throw new Error('User does not exist !!!');
+            }
+
+            const commentData = {
+                id: uuidv4(),
+                postId: args.postId,
+                userId: args.userId,
+                description: args.description
+            };
+
+            commentList.push(commentData);
+
+            console.log(commentList);
+            return commentData ;
         }
     },
 
