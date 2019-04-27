@@ -1,3 +1,7 @@
+
+import uuidv4 from 'uuid/v4';
+
+
 const Mutation = {
         createUser(parent, args, { db }, info) {
         
@@ -54,6 +58,31 @@ const Mutation = {
         return db.userList;
     },
 
+    updateUser(parent, args, { db } , info) {
+
+        var user = db.userList.find( (user) => {
+            return user.id == args.id;
+        });
+
+        if(!user){
+            throw new Error('User not found');
+        }
+
+        var isEmailExist = db.userList.find( (user) => {
+            return user.email = args.data.email ;
+        });
+
+        if (!isEmailExist) {
+            throw new Error('Email already exist');
+        }
+
+        user.email = args.data.email;
+        user.name = args.data.name;
+        user.age = args.data.age;
+
+        return db.userList ;
+    },
+
     createPost(parent, args, { db } , info) {
 
         var userExist = db.userList.some( (user) => {
@@ -102,7 +131,23 @@ const Mutation = {
         return db.posts ;
     },
 
-    createComment(parent, args, { db }, info) {
+    updatePost(parent, args, { db }, info) {
+        var post = db.posts.find((post) => {
+            return post.id == args.id;
+        });
+
+        if (!post) {
+            throw new Error('Post not found');
+        }
+
+        post.body = args.data.body;
+        post.title = args.data.title;
+        post.published = args.data.published;
+
+        return db.posts;
+    },
+
+    createComment(parent, args, { db, pubsub }, info) {
 
         var postExist = db.posts.some( (post) => {
             return post.id == args.postId ;
@@ -128,6 +173,8 @@ const Mutation = {
         };
 
         db.commentList.push(commentData);
+        var data = db.commentList;
+        pubsub.publish('comment ${args.postId}', { comment: data } );
 
         console.log(db.commentList);
         return commentData ;

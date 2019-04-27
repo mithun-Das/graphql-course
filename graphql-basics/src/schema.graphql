@@ -4,21 +4,23 @@ type Query {
     name: String!
     age: Int!
     employed: Boolean!
-    add(numbers : [Int!]!): Int!
+    add(numbers: [Int!]!): Int!
     gpa: Float!
     grades: [Int]!
     greeting(name: String, job: String): String!
     me: User!
     post(id: String): [Post!]!
     users(id: String!): [User!]!
-    comments : [Comment!]!
+    comments: [Comment!]!
 }
 
 type Mutation {
     createUser(data:CreateUserInput) : User!
     deleteUser(id: String!) : [User]!
+    updateUser(id: String!, data: UpdateUserInput) : [User!]
     createPost(title: String!, body: String!, author: String!, published: Boolean) : Post!
     deletePost(id: String!) : [Post!]
+    updatePost(id: String!,data: UpdatePostInput) : [Post!]
     createComment(postId: String!, userId: String!, description: String!) : Comment!
 }
 
@@ -29,6 +31,7 @@ type Test {
 type User {
         id: String!,
         name: String!
+        email: String!
         age: Int!
         employed: Boolean!
         gpa: Float!
@@ -52,8 +55,26 @@ type Comment {
         description: String!
 }
 
+type Subscription {
+    count: Int!
+    comment(postId: String!): [Comment!]!
+}
+
 input CreateUserInput {
-    name: String!
-    email: String!
-    age: Int!
+        name: String!
+        email: String!
+        age: Int!
+        # comment: Comment Think why wrong
+}
+
+input UpdateUserInput {
+        name: String!
+        email: String!
+        age: Int!
+}
+
+input UpdatePostInput {
+        body: String!
+        title: String!
+        published: Boolean
 }

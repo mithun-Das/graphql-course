@@ -1,16 +1,18 @@
 
-import { GraphQLServer } from 'graphql-yoga';
-import uuidv4 from 'uuid/v4' ;
+import { GraphQLServer, PubSub } from 'graphql-yoga';
 import db from './db';
 import Query from './Resolvers/Query';
 import Mutation from './Resolvers/Mutation';
 import Post from './Resolvers/Post';
 import User from './Resolvers/User';
 import Comment from './Resolvers/Comment';
+import Subscription from './Resolvers/Subscription';
 
 //Type definitions (schema)
 
 // Resolvers 
+
+const pubsub = new PubSub();
 
 const server = new GraphQLServer({
     typeDefs : './src/schema.graphql',
@@ -19,10 +21,12 @@ const server = new GraphQLServer({
         Mutation,
         User,
         Post,
-        Comment
+        Comment,
+        Subscription
     },
     context : {
-        db
+        db,
+        pubsub
     }
 });
 
