@@ -57,7 +57,13 @@ type Comment {
 
 type Subscription {
     count: Int!
+    post: PostSubscriptionPayload!
     comment(postId: String!): [Comment!]!
+}
+
+type PostSubscriptionPayload {
+    mutation: MutationType!
+    data: [Post!]
 }
 
 input CreateUserInput {
@@ -77,4 +83,10 @@ input UpdatePostInput {
         body: String!
         title: String!
         published: Boolean
+}
+
+enum MutationType {
+        CREATED
+        DELETED
+        UPDATED
 }

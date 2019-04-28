@@ -26,7 +26,7 @@ const Mutation = {
         return user;
     },
 
-    deleteUser(parent, args, { db }, info) {
+    deleteUser(parent, args, { db, pubsub }, info) {
 
         var userIndex = db.userList.findIndex( (user) => {
                 return user.id == args.id ;
@@ -83,7 +83,7 @@ const Mutation = {
         return db.userList ;
     },
 
-    createPost(parent, args, { db } , info) {
+    createPost(parent, args, { db, pubsub } , info) {
 
         var userExist = db.userList.some( (user) => {
             return user.id == args.author;
@@ -96,6 +96,13 @@ const Mutation = {
         const postData = {
             id: uuidv4(),
             ...args
+        };
+
+        if(args.published) {
+            pubsub.publish('post', { post: {
+                mutation: CREATED,
+                data: db.posts
+            }});
         }
 
         db.posts.push(postData);
@@ -104,7 +111,7 @@ const Mutation = {
         return postData;
     },
 
-    deletePost(parent, args,{ db }, info) {
+    deletePost(parent, args,{ db, pubsub }, info) {
 
         var postIdExist = db.posts.findIndex((post) => {
             return post.id == args.id;
@@ -124,6 +131,13 @@ const Mutation = {
                 });
             }
 
+            pubsub.publish('post', {
+                post: {
+                    mutation: 'DELETED',
+                    data: db.posts
+                }
+            });
+
             return !postMatch ;
                 
         });
@@ -131,7 +145,7 @@ const Mutation = {
         return db.posts ;
     },
 
-    updatePost(parent, args, { db }, info) {
+    updatePost(parent, args, { db, pubsub  }, info) {
         var post = db.posts.find((post) => {
             return post.id == args.id;
         });
@@ -143,6 +157,14 @@ const Mutation = {
         post.body = args.data.body;
         post.title = args.data.title;
         post.published = args.data.published;
+
+        pubsub.publish('post', {
+            post: {
+                mutation: 'UPDATED',
+                data: db.posts
+
+            }
+        });
 
         return db.posts;
     },
@@ -174,7 +196,7 @@ const Mutation = {
 
         db.commentList.push(commentData);
         var data = db.commentList;
-        pubsub.publish('comment ${args.postId}', { comment: data } );
+        pubsub.publish('comment ${args.postId}', { comment: data } ); // key name must same with subscription scheme name 
 
         console.log(db.commentList);
         return commentData ;
